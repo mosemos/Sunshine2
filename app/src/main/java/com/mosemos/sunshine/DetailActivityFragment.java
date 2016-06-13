@@ -40,6 +40,7 @@ public class DetailActivityFragment extends Fragment {
             shareActionProvider.setShareIntent(shareIntent);
         }
     }
+    
 
     private Intent createShareIntent(){
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
