@@ -341,8 +341,6 @@ public class ForecastFragment extends Fragment {
                 forecastListAdapter.addAll(strings);
             }
 
-
-
         }
 
 
