@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Sunshine</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_share">Share</string>
+
+
+    <string name="action_refresh" translatable="false">Refresh</string>
+    <string name="action_show_map">Location on Map</string>
+
+    <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Preferences -->
+    <string name="pref_location_label">Location</string>
+    <!-- the key for location storing in the shared preferences -->
+    <string name="pref_location_key" translatable="false">location</string>
+    <string name="pref_location_default" translatable="false">109323</string>
+
+
+    <string name="pref_tempUnit_label">Temperature Unit</string>
+    <string name="pref_tempUnit_key" translatable="false">tempUnit</string>
+    <string name="pref_tempUnit_metric" translatable="false">metric</string>
+    <string name="pref_tempUnit_imperial" translatable="false">imperial</string>
+
+
+</resources>
