@@ -55,16 +55,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
     private boolean DEBUG = true;
 
-    /* The date/time conversion code is going to be moved outside the asynctask later,
-     * so for convenience we're breaking it out into its own method now.
-     */
-    private String getReadableDateString(long time){
-        // Because the API returns a unix timestamp (measured in seconds),
-        // it must be converted to milliseconds in order to be converted to valid date.
-        Date date = new Date(time);
-        SimpleDateFormat format = new SimpleDateFormat("E, MMM d");
-        return format.format(date).toString();
-    }
+	
 
     /**
      * Prepare the weather high/lows for presentation.
@@ -192,23 +183,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             // Insert the new weather information into the database
             Vector<ContentValues> cVVector = new Vector<ContentValues>(weatherArray.length());
 
-            // OWM returns daily forecasts based upon the local time of the city that is being
-            // asked for, which means that we need to know the GMT offset to translate this data
-            // properly.
-
-            // Since this data is also sent in-order and the first day is always the
-            // current day, we're going to take advantage of that to get a nice
-            // normalized UTC date for all of our weather.
-
-            Time dayTime = new Time();
-            dayTime.setToNow();
-
-            // we start at the day returned by local time. Otherwise this is a mess.
-            int julianStartDay = Time.getJulianDay(System.currentTimeMillis(), dayTime.gmtoff);
-
-            // now we work exclusively in UTC
-            dayTime = new Time();
-
+            
             for(int i = 0; i < weatherArray.length(); i++) {
                 // These are the values that will be collected.
                 long dateTime;
@@ -219,10 +194,10 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
                 double high;
                 double low;
-
+		
                 String description;
                 int weatherId;
-
+				
                 // Get the JSON object representing the day
                 JSONObject dayForecast = weatherArray.getJSONObject(i);
 
@@ -233,7 +208,17 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                 humidity = dayForecast.getInt(OWM_HUMIDITY);
                 windSpeed = dayForecast.getDouble(OWM_WINDSPEED);
                 windDirection = dayForecast.getDouble(OWM_WIND_DIRECTION);
-
+	/*			
+				//create a Gregorian Calendar, which is in current date
+				GregorianCalendar gc = new GregorianCalendar();
+				//add i dates to current date of calendar
+				gc.add(GregorianCalendar.DATE, i);
+				//get that date, format it, and "save" it on variable day
+				Date time = gc.getTime();
+				SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
+				day = shortenedDateFormat.format(time);
+								
+	*/			
                 // Description is in a child array called "weather", which is 1 element long.
                 // That element also contains a weather code.
                 JSONObject weatherObject =
