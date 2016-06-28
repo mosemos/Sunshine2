@@ -11,6 +11,13 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+
+        <provider
+            android:authorities="com.mosemos.sunshine"
+            android:name=".data.WeatherProvider"
+        />  <!-- authorities: package name in the provider authority, name: class name of the provider-->
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -35,7 +42,7 @@
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme.NoActionBar">
             </activity>
-
+            
     </application>
 
 
