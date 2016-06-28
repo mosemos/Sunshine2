@@ -21,7 +21,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.text.format.Time;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
@@ -39,6 +38,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Vector;
 
 public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
@@ -116,8 +116,8 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             String highAndLow = formatHighLows(
                     weatherValues.getAsDouble(WeatherEntry.COLUMN_MAX_TEMP),
                     weatherValues.getAsDouble(WeatherEntry.COLUMN_MIN_TEMP));
-            resultStrs[i] = getReadableDateString(
-                    weatherValues.getAsLong(WeatherEntry.COLUMN_DATE)) +
+            //TODO:check
+            resultStrs[i] = weatherValues.getAsString(WeatherEntry.COLUMN_DATE) +
                     " - " + weatherValues.getAsString(WeatherEntry.COLUMN_SHORT_DESC) +
                     " - " + highAndLow;
         }
@@ -186,7 +186,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             
             for(int i = 0; i < weatherArray.length(); i++) {
                 // These are the values that will be collected.
-                long dateTime;
+                String day;
                 double pressure;
                 int humidity;
                 double windSpeed;
@@ -201,14 +201,12 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                 // Get the JSON object representing the day
                 JSONObject dayForecast = weatherArray.getJSONObject(i);
 
-                // Cheating to convert this to UTC time, which is what we want anyhow
-                dateTime = dayTime.setJulianDay(julianStartDay+i);
-
                 pressure = dayForecast.getDouble(OWM_PRESSURE);
                 humidity = dayForecast.getInt(OWM_HUMIDITY);
                 windSpeed = dayForecast.getDouble(OWM_WINDSPEED);
                 windDirection = dayForecast.getDouble(OWM_WIND_DIRECTION);
-	/*			
+
+                //TODO:check
 				//create a Gregorian Calendar, which is in current date
 				GregorianCalendar gc = new GregorianCalendar();
 				//add i dates to current date of calendar
@@ -218,7 +216,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 				SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
 				day = shortenedDateFormat.format(time);
 								
-	*/			
+				
                 // Description is in a child array called "weather", which is 1 element long.
                 // That element also contains a weather code.
                 JSONObject weatherObject =
@@ -235,7 +233,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                 ContentValues weatherValues = new ContentValues();
 
                 weatherValues.put(WeatherEntry.COLUMN_LOC_KEY, locationId);
-                weatherValues.put(WeatherEntry.COLUMN_DATE, dateTime);
+                weatherValues.put(WeatherEntry.COLUMN_DATE, day);
                 weatherValues.put(WeatherEntry.COLUMN_HUMIDITY, humidity);
                 weatherValues.put(WeatherEntry.COLUMN_PRESSURE, pressure);
                 weatherValues.put(WeatherEntry.COLUMN_WIND_SPEED, windSpeed);
