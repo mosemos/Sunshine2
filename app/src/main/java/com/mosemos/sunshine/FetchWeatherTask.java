@@ -117,7 +117,9 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
                     weatherValues.getAsDouble(WeatherEntry.COLUMN_MAX_TEMP),
                     weatherValues.getAsDouble(WeatherEntry.COLUMN_MIN_TEMP));
             //TODO:check
-            resultStrs[i] = weatherValues.getAsString(WeatherEntry.COLUMN_DATE) +
+            String dateString = weatherValues.getAsString(WeatherEntry.COLUMN_DATE); // the date in the format: EEEMMMdd
+            dateString = dateString.substring(0, 3) + ", " + dateString.substring(3, 6) + " " + dateString.substring(6);
+            resultStrs[i] = dateString +
                     " - " + weatherValues.getAsString(WeatherEntry.COLUMN_SHORT_DESC) +
                     " - " + highAndLow;
         }
@@ -213,7 +215,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 				gc.add(GregorianCalendar.DATE, i);
 				//get that date, format it, and "save" it on variable day
 				Date time = gc.getTime();
-				SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
+				SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEEMMMdd");
 				day = shortenedDateFormat.format(time);
 								
 				
@@ -254,7 +256,7 @@ public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
             // Sort order:  Ascending, by date.
             String sortOrder = WeatherEntry.COLUMN_DATE + " ASC";
             Uri weatherForLocationUri = WeatherEntry.buildWeatherLocationWithStartDate(
-                    locationSetting, System.currentTimeMillis());
+                    locationSetting);
 
             // Students: Uncomment the next lines to display what what you stored in the bulkInsert
 

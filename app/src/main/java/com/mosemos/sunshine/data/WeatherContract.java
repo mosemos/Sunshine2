@@ -19,7 +19,10 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import android.text.format.Time;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Defines table and column names for the weather database.
@@ -45,15 +48,26 @@ public class WeatherContract {
     public static final String PATH_LOCATION = "location";
 
 
-    // To make it easy to query for the exact date, we normalize all dates that go into
-    // the database to the start of the the Julian day at UTC.
-    public static long normalizeDate(long startDate) {
-        // normalize the start date to the beginning of the (UTC) day
-        Time time = new Time();
-        time.set(startDate);
-        int julianDay = Time.getJulianDay(startDate, time.gmtoff);
-        return time.setJulianDay(julianDay);
+//    // To make it easy to query for the exact date, we normalize all dates that go into
+//    // the database to the start of the the Julian day at UTC.
+//    public static long normalizeDate(long startDate) {
+//        // normalize the start date to the beginning of the (UTC) day
+//        Time time = new Time();
+//        time.set(startDate);
+//        int julianDay = Time.getJulianDay(startDate, time.gmtoff);
+//        return time.setJulianDay(julianDay);
+//    }
+
+    // returns the current date in a string format using GregorianCalendar
+    public static String getDateString(){
+        //create a Gregorian Calendar, which is in current date
+        GregorianCalendar gc = new GregorianCalendar();
+        //get that date, format it, and "save" it on variable day
+        Date time = gc.getTime();
+        SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEEMMMdd");
+        return shortenedDateFormat.format(time);
     }
+
 
     /*
         Inner class that defines the table contents of the location table
@@ -96,7 +110,7 @@ public class WeatherContract {
 
         // Column with the foreign key into the location table.
         public static final String COLUMN_LOC_KEY = "location_id";
-        // Date, stored as long in milliseconds since the epoch
+        // Date, stored as String EEEMMMdd
         public static final String COLUMN_DATE = "date";
         // Weather id as returned by API, to identify the icon to be used
         public static final String COLUMN_WEATHER_ID = "weather_id";
@@ -141,32 +155,30 @@ public class WeatherContract {
             return null;
         }
 
-        public static Uri buildWeatherLocationWithStartDate(
-                String locationSetting, long startDate) {
-            long normalizedDate = normalizeDate(startDate);
+        public static Uri buildWeatherLocationWithStartDate(String locationSetting) {
+            String normalizedDate = getDateString();
             return CONTENT_URI.buildUpon().appendPath(locationSetting)
-                    .appendQueryParameter(COLUMN_DATE, Long.toString(normalizedDate)).build();
+                    .appendQueryParameter(COLUMN_DATE, normalizedDate).build();
         }
 
-        public static Uri buildWeatherLocationWithDate(String locationSetting, long date) {
+        public static Uri buildWeatherLocationWithDate(String locationSetting, String dateString) {
             return CONTENT_URI.buildUpon().appendPath(locationSetting)
-                    .appendPath(Long.toString(normalizeDate(date))).build();
+                    .appendPath(dateString).build();
         }
 
         public static String getLocationSettingFromUri(Uri uri) {
             return uri.getPathSegments().get(1);
         }
-
-        public static long getDateFromUri(Uri uri) {
-            return Long.parseLong(uri.getPathSegments().get(2));
+        public static String getDateFromUri(Uri uri) {
+            return uri.getPathSegments().get(2);
         }
 
-        public static long getStartDateFromUri(Uri uri) {
+        public static String getStartDateFromUri(Uri uri) {
             String dateString = uri.getQueryParameter(COLUMN_DATE);
             if (null != dateString && dateString.length() > 0)
-                return Long.parseLong(dateString);
+                return dateString;
             else
-                return 0;
+                return null;
         }
     }
 }

@@ -70,16 +70,16 @@ public class WeatherProvider extends ContentProvider {
 
     private Cursor getWeatherByLocationSetting(Uri uri, String[] projection, String sortOrder) {
         String locationSetting = WeatherContract.WeatherEntry.getLocationSettingFromUri(uri);
-        long startDate = WeatherContract.WeatherEntry.getStartDateFromUri(uri);
+        String startDate = WeatherContract.WeatherEntry.getStartDateFromUri(uri);
 
         String[] selectionArgs;
         String selection;
 
-        if (startDate == 0) {
+        if (startDate == null) {
             selection = sLocationSettingSelection;
             selectionArgs = new String[]{locationSetting};
         } else {
-            selectionArgs = new String[]{locationSetting, Long.toString(startDate)};
+            selectionArgs = new String[]{locationSetting, startDate};
             selection = sLocationSettingWithStartDateSelection;
         }
 
@@ -96,12 +96,12 @@ public class WeatherProvider extends ContentProvider {
     private Cursor getWeatherByLocationSettingAndDate(
             Uri uri, String[] projection, String sortOrder) {
         String locationSetting = WeatherContract.WeatherEntry.getLocationSettingFromUri(uri);
-        long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
+        String date = WeatherContract.WeatherEntry.getDateFromUri(uri);
 
         return sWeatherByLocationSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
                 projection,
                 sLocationSettingAndDaySelection,
-                new String[]{locationSetting, Long.toString(date)},
+                new String[]{locationSetting, date},
                 null,
                 null,
                 sortOrder
@@ -208,7 +208,6 @@ public class WeatherProvider extends ContentProvider {
 
         switch (match) {
             case WEATHER: {
-                normalizeDate(values);
                 long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
                     returnUri = WeatherContract.WeatherEntry.buildWeatherUri(_id);
@@ -239,13 +238,7 @@ public class WeatherProvider extends ContentProvider {
         return 0;
     }
 
-    private void normalizeDate(ContentValues values) {
-        // normalize the date value
-        if (values.containsKey(WeatherContract.WeatherEntry.COLUMN_DATE)) {
-            long dateValue = values.getAsLong(WeatherContract.WeatherEntry.COLUMN_DATE);
-            values.put(WeatherContract.WeatherEntry.COLUMN_DATE, WeatherContract.normalizeDate(dateValue));
-        }
-    }
+    //removed normalizeDate as it is useless with the new schema of date
 
     @Override
     public int update(
@@ -265,7 +258,7 @@ public class WeatherProvider extends ContentProvider {
                 int returnCount = 0;
                 try {
                     for (ContentValues value : values) {
-                        normalizeDate(value);
+
                         long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, value);
                         if (_id != -1) {
                             returnCount++;
