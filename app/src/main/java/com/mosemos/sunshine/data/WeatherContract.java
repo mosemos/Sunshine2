@@ -59,12 +59,12 @@ public class WeatherContract {
 //    }
 
     // returns the current date in a string format using GregorianCalendar
-    public static String getDateString(){
+    public static String getCurrentDateAsString(){
         //create a Gregorian Calendar, which is in current date
         GregorianCalendar gc = new GregorianCalendar();
         //get that date, format it, and "save" it on variable day
         Date time = gc.getTime();
-        SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEEMMMdd");
+        SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("yyyyMMdd");
         return shortenedDateFormat.format(time);
     }
 
@@ -156,7 +156,7 @@ public class WeatherContract {
         }
 
         public static Uri buildWeatherLocationWithStartDate(String locationSetting) {
-            String normalizedDate = getDateString();
+            String normalizedDate = getCurrentDateAsString();
             return CONTENT_URI.buildUpon().appendPath(locationSetting)
                     .appendQueryParameter(COLUMN_DATE, normalizedDate).build();
         }

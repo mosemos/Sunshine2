@@ -3,6 +3,10 @@ package com.mosemos.sunshine;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 public class Utility {
     public static String getPreferredLocation(Context context) {
@@ -29,7 +33,17 @@ public class Utility {
     }
 
     static String formatDate(String dateStr) {
-        String formattedDateString = dateStr.substring(0,3) + ", " + dateStr.substring(3,6) + " " + dateStr.substring(6);
+        SimpleDateFormat dbSimpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat uxSimpleDateFormat = new SimpleDateFormat("EEE, MMM dd");
+
+        String formattedDateString = null;
+        try {
+            formattedDateString = uxSimpleDateFormat.format(dbSimpleDateFormat.parse(dateStr));
+        } catch (ParseException e) {
+            Log.e("Utility", "Cannot convert date: " + dateStr);
+            e.printStackTrace();
+        }
+
         return formattedDateString;
     }
 }

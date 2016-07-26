@@ -181,14 +181,13 @@ public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
                 windSpeed = dayForecast.getDouble(OWM_WINDSPEED);
                 windDirection = dayForecast.getDouble(OWM_WIND_DIRECTION);
 
-                //TODO:check
 				//create a Gregorian Calendar, which is in current date
 				GregorianCalendar gc = new GregorianCalendar();
 				//add i dates to current date of calendar
 				gc.add(GregorianCalendar.DATE, i);
 				//get that date, format it, and "save" it on variable day
 				Date time = gc.getTime();
-				SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEEMMMdd");
+				SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("yyyyMMdd");
 				day = shortenedDateFormat.format(time);
 
                 // Description is in a child array called "weather", which is 1 element long.
