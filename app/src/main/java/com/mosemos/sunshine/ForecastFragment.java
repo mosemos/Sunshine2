@@ -2,29 +2,31 @@ package com.mosemos.sunshine;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.mosemos.sunshine.data.WeatherContract;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ForecastFragment extends Fragment {
-    private ArrayAdapter<String> forecastListAdapter = null;
+public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    private ForecastAdapter forecastAdapter = null;
+    private static final int FORECAST_LOADER_ID = 1;
     private String longitude;
     private String latitude;
 
@@ -78,31 +80,19 @@ public class ForecastFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
 
-        List<String> forecasts = new ArrayList<String>();
+        String locationSetting = Utility.getPreferredLocation(getActivity());
 
-        forecastListAdapter = new ArrayAdapter<String>(getActivity(),         // context: the parent activity
-                R.layout.list_item_forecast,                                  // layout of the items
-                R.id.list_item_forecast_textview,                             // id of the list item
-                forecasts);                                                   // data
+        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(locationSetting);
+        Cursor cursor = getActivity().getContentResolver().query(weatherForLocationUri,
+                null, null, null, sortOrder);
 
-
+        forecastAdapter = new ForecastAdapter(getActivity(), cursor, 0);
 
         ListView listView = (ListView) view.findViewById(R.id.listview_forecast);
-        listView.setAdapter(forecastListAdapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-               String weatherInfo = (String) parent.getItemAtPosition(position);
-
-                Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
-                detailIntent.putExtra(Intent.EXTRA_TEXT, weatherInfo);  // add the weatherInfo to the intent
-                startActivity(detailIntent);
+        listView.setAdapter(forecastAdapter);
 
 
-            }
-        });
 
         return view;
     }
@@ -116,10 +106,29 @@ public class ForecastFragment extends Fragment {
         String defaultValue = getResources().getString(R.string.pref_location_default);
         String cityId = prefs.getString(key, defaultValue);
         // start a fetchWeatherTask using the cityId specified in the SharedPreferences
-        new FetchWeatherTask(getActivity(), forecastListAdapter).execute(cityId);
+        new FetchWeatherTask(getActivity()).execute(cityId);
     }
 
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(FORECAST_LOADER_ID, savedInstanceState, this);
+    }
 
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle){
+        String locationSetting = Utility.getPreferredLocation(getActivity());
+        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+        Uri uri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(locationSetting);
+
+        return new CursorLoader(getActivity(), uri, null, null, null, sortOrder);
+    }
+
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor){
+        forecastAdapter.swapCursor(cursor);
+    }
+
+    public void onLoaderReset(Loader<Cursor> cursorLoader){
+        forecastAdapter.swapCursor(null);
+    }
 
 
 }
