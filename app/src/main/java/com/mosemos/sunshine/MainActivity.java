@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
+    private String currentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        currentLocation = Utility.getPreferredLocation(this);
     }
 
     @Override
@@ -40,8 +41,22 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             return true;
         }
-
-
         return super.onOptionsItemSelected(item);
+    }
+
+    protected void onResume() {
+        super.onResume();
+
+        String prefsLocation = Utility.getPreferredLocation(this);
+
+        if(currentLocation != null && !currentLocation.equals(prefsLocation)){
+            ForecastFragment forecastFragment = (ForecastFragment) getSupportFragmentManager().findFragmentById(R.id.fragment);
+
+            if(forecastFragment != null){
+                forecastFragment.onLocationChanged();
+            }
+            currentLocation = prefsLocation;
+        }
+
     }
 }

@@ -6,7 +6,7 @@ import android.support.v7.widget.Toolbar;
 
 public class DetailActivity extends AppCompatActivity {
 
-    private final String logtag = "DetailActivity";
+    private final static String LOG_TAG = "DetailActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

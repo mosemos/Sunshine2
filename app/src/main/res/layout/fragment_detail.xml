@@ -11,10 +11,10 @@
 
 
     <TextView
-        android:layout_width="214dp"
-        android:layout_height="88dp"
+        android:layout_width="300dp"
+        android:layout_height="150dp"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/weatherDetails"
         android:layout_gravity="center_horizontal|top"
-        android:text="Hello world!" />
+        android:text="" />
 </FrameLayout>

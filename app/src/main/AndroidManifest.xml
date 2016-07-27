@@ -16,6 +16,7 @@
         <provider
             android:authorities="com.mosemos.sunshine"
             android:name=".data.WeatherProvider"
+            android:exported="true"
         />  <!-- authorities: package name in the provider authority, name: class name of the provider-->
 
         <activity
