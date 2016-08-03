@@ -2,6 +2,7 @@ package com.mosemos.sunshine;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -28,6 +29,7 @@ import com.mosemos.sunshine.data.WeatherContract.WeatherEntry;
 public class DetailActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final int DETAIL_LOADER_ID = 1;
+    private Uri forecastUri = null;
 
     private ShareActionProvider mShareActionProvider;
     private String mForecast;
@@ -78,6 +80,11 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
     }
 
+    public void onLocationChanged(String location){
+        String date = WeatherEntry.getDateFromUri(forecastUri);
+        forecastUri = WeatherEntry.buildWeatherLocationWithDate(location, date);
+        getLoaderManager().restartLoader(DETAIL_LOADER_ID, null, this);
+    }
 
     private Intent createShareIntent(){
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -94,6 +101,14 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent intent = getActivity().getIntent();
+        if(intent != null && intent.getData() != null){
+            forecastUri = intent.getData();
+        }
+        else if(getArguments() != null) {
+            forecastUri = Uri.parse(getArguments().getString("dateUri"));
+        }
+
         // declaring that it has optionsMenu
         this.setHasOptionsMenu(true);
     }
@@ -127,18 +142,17 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
 
 
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-       Intent intent = getActivity().getIntent();
-       if(intent == null){
-            return null;
-       }
 
-        return new CursorLoader(
-                getActivity(),
-                intent.getData(),
-                FORECAST_COLUMNS,
-                null,
-                null,
-                null);
+       if(forecastUri != null){
+           return new CursorLoader(
+                   getActivity(),
+                   forecastUri,
+                   FORECAST_COLUMNS,
+                   null,
+                   null,
+                   null);
+       }
+       return null;
     }
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if(!data.moveToFirst()){

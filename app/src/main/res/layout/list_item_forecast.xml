@@ -3,6 +3,7 @@
 <!-- the layout for a single list item -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
+    android:background="@drawable/touch_selector"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
