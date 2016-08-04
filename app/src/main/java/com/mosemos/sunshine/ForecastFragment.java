@@ -27,7 +27,10 @@ import com.mosemos.sunshine.data.WeatherContract;
  */
 public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private ForecastAdapter forecastAdapter = null;
+    private ListView listView;
     private static final int FORECAST_LOADER_ID = 1;
+    int selectedPosition = ListView.INVALID_POSITION;
+
     //TODO: assign
     private String longitude;
     private String latitude;
@@ -68,7 +71,13 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         /**
          * DetailFragmentCallback for when an item has been selected.
          */
-        public void onItemSelected(Uri dateUri);
+        void onItemSelected(Uri dateUri);
+    }
+
+    public void setAdapterTabletMode(boolean isTablet){
+        if(forecastAdapter != null){
+            forecastAdapter.setIsTablet(isTablet);
+        }
     }
 
     public void onCreate(Bundle savedInstanceState) {
@@ -106,7 +115,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             startActivity(intent);
             return true;
         }
-        
+
         return false;
     }
 
@@ -118,7 +127,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         forecastAdapter = new ForecastAdapter(getActivity(), null, 0);
 
-        ListView listView = (ListView) view.findViewById(R.id.listview_forecast);
+        listView = (ListView) view.findViewById(R.id.listview_forecast);
         listView.setAdapter(forecastAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -130,11 +139,26 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                             locationSetting, cursor.getString(COL_WEATHER_DATE));
                     ((Callback) getActivity()).onItemSelected(dateUri);
                 }
+                selectedPosition = position;
             }
         });
 
 
+        if(savedInstanceState != null && savedInstanceState.containsKey("selected_position")){
+            selectedPosition = savedInstanceState.getInt("selected_position");
+        }
+
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        if(selectedPosition != ListView.INVALID_POSITION){
+            outState.putInt("selected_position", selectedPosition);
+        }
+
+        super.onSaveInstanceState(outState);
     }
 
     public void onLocationChanged(){
@@ -168,6 +192,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor){
         forecastAdapter.swapCursor(cursor);
+
+        if(selectedPosition != ListView.INVALID_POSITION){
+            listView.smoothScrollToPosition(selectedPosition);
+        }
     }
 
     public void onLoaderReset(Loader<Cursor> cursorLoader){

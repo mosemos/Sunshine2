@@ -14,6 +14,7 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
 
     @Override
     public void onItemSelected(Uri dateUri) {
+
         if(isTwoPaneLayout){
             DetailActivityFragment detailActivityFragment = new DetailActivityFragment();
             Bundle bundle = new Bundle();
@@ -46,11 +47,11 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
             // in tablet mode
             isTwoPaneLayout = true;
 
-//            if(savedInstanceState == null){
-//                getSupportFragmentManager().beginTransaction()
-//                        .replace(R.id.weather_detail_container, new DetailActivityFragment(), DETAILFRAGMENT_TAG)
-//                        .commit();
-//            }
+            ForecastFragment forecastFragment = (ForecastFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
+
+            forecastFragment.setAdapterTabletMode(true);
+        }else{
+            getSupportActionBar().setElevation(0f);
         }
     }
 

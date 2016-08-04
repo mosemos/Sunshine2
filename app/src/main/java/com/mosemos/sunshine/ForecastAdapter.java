@@ -17,11 +17,15 @@ public class ForecastAdapter extends CursorAdapter {
 
     private final int VIEW_TYPE_TODAY = 0;
     private final int VIEW_TYPE_FUTURE_DAY = 1;
+    private boolean isTablet = false;
 
     public ForecastAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
     }
 
+    public void setIsTablet(boolean isTablet){
+        this.isTablet = isTablet;
+    }
 
     @Override
     public int getViewTypeCount() {
@@ -42,7 +46,7 @@ public class ForecastAdapter extends CursorAdapter {
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         int layoutId = -1;
 
-        if(getItemViewType(cursor.getPosition()) == VIEW_TYPE_TODAY){
+        if((getItemViewType(cursor.getPosition()) == VIEW_TYPE_TODAY) && !isTablet){
             layoutId = R.layout.list_item_forecast_today;
         }
         else{
@@ -66,7 +70,7 @@ public class ForecastAdapter extends CursorAdapter {
         int conditionId = cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
         int conditionImageId;
 
-        if(getItemViewType(cursor.getPosition()) == VIEW_TYPE_TODAY){
+        if((getItemViewType(cursor.getPosition()) == VIEW_TYPE_TODAY) && !isTablet){
             conditionImageId = Utility.getArtResourceForWeatherCondition(conditionId);
         }else{
             conditionImageId = Utility.getIconResourceForWeatherCondition(conditionId);
