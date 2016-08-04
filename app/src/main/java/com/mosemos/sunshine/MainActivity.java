@@ -22,7 +22,6 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.weather_detail_container, detailActivityFragment, DETAILFRAGMENT_TAG);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            ft.addToBackStack(null);
             ft.commit();
         }else{
             Intent intent = new Intent(this, DetailActivity.class)
@@ -38,17 +37,20 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // execute a FetchWeatherTask if the app is run for the first time
+        Utility.appFirstLaunchTask(this);
+
         currentLocation = Utility.getPreferredLocation(this);
 
         if(findViewById(R.id.weather_detail_container) != null){
             // in tablet mode
             isTwoPaneLayout = true;
 
-            if(savedInstanceState == null){
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.weather_detail_container, new DetailActivityFragment(), DETAILFRAGMENT_TAG)
-                        .commit();
-            }
+//            if(savedInstanceState == null){
+//                getSupportFragmentManager().beginTransaction()
+//                        .replace(R.id.weather_detail_container, new DetailActivityFragment(), DETAILFRAGMENT_TAG)
+//                        .commit();
+//            }
         }
     }
 

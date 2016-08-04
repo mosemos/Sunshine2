@@ -18,6 +18,16 @@ public class Utility {
                 context.getString(R.string.pref_location_default));
     }
 
+    public static void appFirstLaunchTask(Context context){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        if(prefs.getBoolean("firstLaunch", true)){
+            Log.v("Utility", "executing FetchWeatherTask");
+            new FetchWeatherTask(context).execute(getPreferredLocation(context));
+
+            prefs.edit().putBoolean("firstLaunch", false).apply();
+        }
+    }
+
     public static String formatWind(Context context, float windSpeed, float degrees) {
         int windFormat;
         if (Utility.isMetric(context)) {
