@@ -19,4 +19,13 @@
         android:entries="@array/tempUnit_entries"
         android:entryValues="@array/tempUnit_entryValues" />
 
+
+    <SwitchPreference
+        android:title="@string/pref_show_notification_label"
+        android:key="@string/pref_show_notification_key"
+        android:summaryOff="@string/pref_show_notification_summary_off"
+        android:summaryOn="@string/pref_show_notification_summary_on"
+        android:defaultValue="true"
+        />
+
 </PreferenceScreen>

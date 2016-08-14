@@ -2,6 +2,7 @@ package com.mosemos.sunshine;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,6 +12,8 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -109,6 +112,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
             forecastUri = Uri.parse(getArguments().getString("dateUri"));
         }
 
+
         // declaring that it has optionsMenu
         this.setHasOptionsMenu(true);
     }
@@ -131,6 +135,7 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         return inflater.inflate(R.layout.fragment_detail, container, false);
     }
 
@@ -173,28 +178,30 @@ public class DetailActivityFragment extends Fragment implements LoaderManager.Lo
         TextView weatherView = (TextView) getView().findViewById(R.id.detail_item_forecast_textview);
         weatherView.setText(weatherDescription);
 
-        boolean isMetric = Utility.isMetric(getActivity());
-        String maxTemp = Utility.formatTemperature(getActivity(), data.getDouble(COL_WEATHER_MAX_TEMP), isMetric);
+        String maxTemp = Utility.formatTemperature(getActivity(), data.getDouble(COL_WEATHER_MAX_TEMP));
         TextView maxTempView = (TextView) getView().findViewById(R.id.detail_item_high_textview);
         maxTempView.setText(maxTemp);
 
-        String minTemp = Utility.formatTemperature(getActivity(), data.getDouble(COL_WEATHER_MIN_TEMP), isMetric);
+        String minTemp = Utility.formatTemperature(getActivity(), data.getDouble(COL_WEATHER_MIN_TEMP));
         TextView lowTempView = (TextView) getView().findViewById(R.id.detail_item_low_textview);
         lowTempView.setText(minTemp);
 
         float humidity = data.getFloat(COL_WEATHER_HUMIDITY);
-        String humidityText = getString(R.string.format_humidity, humidity);
+        SpannableString humidityText = new SpannableString(getString(R.string.format_humidity, humidity));
+        humidityText.setSpan(new StyleSpan(Typeface.BOLD), 0, 9, 0);
         TextView humidityView = (TextView) getView().findViewById(R.id.detail_item_humidity_textview);
         humidityView.setText(humidityText);
 
         float pressure = data.getFloat(COL_WEATHER_PRESSURE);
-        String pressureText = getString(R.string.format_pressure, pressure);
+        SpannableString pressureText = new SpannableString(getString(R.string.format_pressure, pressure));
+        pressureText.setSpan(new StyleSpan(Typeface.BOLD), 0, 9, 0);
         TextView pressureView = (TextView) getView().findViewById(R.id.detail_item_pressure_textview);
         pressureView.setText(pressureText);
 
         float windSpeed = data.getFloat(COL_WEATHER_WIND_SPEED);
         float windDegrees = data.getFloat(COL_WEATHER_DEGREES);
-        String windText = Utility.formatWind(getActivity(), windSpeed, windDegrees);
+        SpannableString windText = new SpannableString(Utility.formatWind(getActivity(), windSpeed, windDegrees));
+        windText.setSpan(new StyleSpan(Typeface.BOLD), 0, 5, 0);
         TextView windView = (TextView) getView().findViewById(R.id.detail_item_wind_textview);
         windView.setText(windText);
 

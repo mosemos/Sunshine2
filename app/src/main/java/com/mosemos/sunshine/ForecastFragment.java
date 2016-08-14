@@ -1,16 +1,15 @@
 package com.mosemos.sunshine;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,6 +21,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.mosemos.sunshine.data.WeatherContract;
+import com.mosemos.sunshine.sync.SunshineSyncAdapter;
+
 /**
  * A fragment containing the weather details
  */
@@ -29,6 +30,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private ForecastAdapter forecastAdapter = null;
     private ListView listView;
     private static final int FORECAST_LOADER_ID = 1;
+    private static final String LOG_TAG = ForecastFragment.class.getSimpleName();
     int selectedPosition = ListView.INVALID_POSITION;
 
     //TODO: assign
@@ -72,6 +74,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
          * DetailFragmentCallback for when an item has been selected.
          */
         void onItemSelected(Uri dateUri);
+
+        void onStartTwoPaneSelect();
     }
 
     public void setAdapterTabletMode(boolean isTablet){
@@ -96,6 +100,20 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         int id = item.getItemId();
 
         if(id == R.id.action_show_map){
+
+            // get the longitude and latitude from the cursor adapter
+            if(forecastAdapter != null){
+                Cursor cursor = forecastAdapter.getCursor();
+                if(cursor != null){
+                    if(cursor.moveToFirst()){
+                        latitude = Double.toString(cursor.getDouble(COL_COORD_LAT));
+                        longitude = Double.toString(cursor.getDouble(COL_COORD_LONG));
+                        Log.v(LOG_TAG, "onLoadFinished: lon: " + longitude + ", lat: " + latitude);
+                    }
+                }
+            }
+
+            // start an intent to a maps app
             Uri uri = Uri.parse("geo:" + latitude + "," + longitude);
 
             Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -151,6 +169,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         return view;
     }
 
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
 
@@ -168,18 +187,17 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     // a method that is called whenever the weather data is to be updated
     private void updateWeather () {
-        // get the cityId from the SharedPreferences
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String key = getResources().getString(R.string.pref_location_key);
-        String defaultValue = getResources().getString(R.string.pref_location_default);
-        String cityId = prefs.getString(key, defaultValue);
-        // start a fetchWeatherTask using the cityId specified in the SharedPreferences
-        new FetchWeatherTask(getActivity()).execute(cityId);
+        Log.v(LOG_TAG, "updateWeather started");
+        SunshineSyncAdapter.syncImmediately(getActivity());
     }
 
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getLoaderManager().initLoader(FORECAST_LOADER_ID, savedInstanceState, this);
+
+        // selecting the first entry for tablet mode
+        ((Callback) getActivity()).onStartTwoPaneSelect();
+        selectedPosition = 0;
     }
 
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle){
@@ -191,6 +209,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor){
+
         forecastAdapter.swapCursor(cursor);
 
         if(selectedPosition != ListView.INVALID_POSITION){

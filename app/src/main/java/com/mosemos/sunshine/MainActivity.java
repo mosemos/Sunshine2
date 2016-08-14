@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
+import com.mosemos.sunshine.data.WeatherContract;
+import com.mosemos.sunshine.sync.SunshineSyncAdapter;
+
 public class MainActivity extends AppCompatActivity implements ForecastFragment.Callback {
     private String currentLocation;
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
@@ -31,12 +34,25 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
     }
 
     @Override
+    public void onStartTwoPaneSelect() {
+        if(isTwoPaneLayout){
+            String location = Utility.getPreferredLocation(this);
+            Uri todayUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(location);
+            DetailActivityFragment detailActivityFragment = new DetailActivityFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("dateUri", todayUri.toString());
+            detailActivityFragment.setArguments(bundle);
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.weather_detail_container, detailActivityFragment, DETAILFRAGMENT_TAG);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            ft.commit();
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // execute a FetchWeatherTask if the app is run for the first time
-        Utility.appFirstLaunchTask(this);
 
         currentLocation = Utility.getPreferredLocation(this);
 
@@ -47,9 +63,10 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
             ForecastFragment forecastFragment = (ForecastFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
 
             forecastFragment.setAdapterTabletMode(true);
-        }else{
-            getSupportActionBar().setElevation(0f);
+
         }
+
+        SunshineSyncAdapter.initializeSyncAdapter(this);
     }
 
 

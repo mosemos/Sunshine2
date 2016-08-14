@@ -1,7 +1,11 @@
 package com.mosemos.sunshine;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
+import android.widget.TextView;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -19,6 +23,10 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
+
+
     }
 
 }
